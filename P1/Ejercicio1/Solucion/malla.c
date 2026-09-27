@@ -1,40 +1,6 @@
-/* malla.c
- * ---------------------------------------------------------------
- * Genera el siguiente arbol de procesos:
- *
- *                    malla
- *              /   /   \      \
- *            p11  p12  p13 ... p1y
- *             |    |    |       |
- *            p21  p22  p23 ... p2y
- *             :    :    :       :
- *             |    |    |       |
- *            px1  px2  px3 ... pxy
- *
- * x = numero de filas, y = numero de columnas.
- *
- * malla crea directamente los "y" procesos de la fila 1 (uno por
- * columna). Cada uno de ellos, a su vez, crea en cadena (con un
- * unico fork por paso) al resto de procesos de su propia columna,
- * hasta llegar a la fila x.
- *
- * Para comprobar el arbol generado:
- *   $ pstree -c <pid_de_malla>
- * (o simplemente "pstree -c" si malla es el unico proceso con ese
- * nombre en el sistema)
- *
- * Todos los procesos se quedan bloqueados en pause() al terminar
- * de crear a sus descendientes, precisamente para que el arbol
- * siga vivo mientras lo inspeccionas con pstree. Para terminarlo
- * todo de golpe, ejecuta el programa en primer plano y pulsa
- * Ctrl+C (mata a todos los procesos porque comparten el mismo
- * grupo de proceso del terminal).
- *
- * Uso:
- *   gcc -o malla malla.c
- *   ./malla <x> <y>
- * ---------------------------------------------------------------
- */
+// Ejercicio 1 A, practica 1, Sistemas Operativos
+// Jose Miguel Martinez Garcia
+// malla.c
 
 #include <stdio.h>
 #include <stdlib.h>

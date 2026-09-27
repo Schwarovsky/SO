@@ -1,28 +1,6 @@
-// Ejercicio 1 B, practica 1, Sistemas Operaticos
+// Ejercicio 1 B, practica 1, Sistemas Operativos
 // Jose Miguel Martinez Garcia
-/* ejec.c
-
-* ---------------------------------------------------------------
- * Arbol de procesos:
- *
- *        arb (ejec)
- *         |
- *         A
- *         |
- *         B
- *       / | \
- *      X  Y  Z
- *
- * Z, transcurridos los segundos indicados en el argumento, avisa
- * a A mediante una senal. A, al recibirla, ejecuta "pstree".
- * Z no usa sleep(): usa alarm() + pause(), tal y como se explica
- * en el apartado de senales de los apuntes.
- *
- * Uso:
- *   gcc -o ejec ejec.c
- *   ./ejec <segundos>
- * ---------------------------------------------------------------
- */
+// ejec.c
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,16 +8,14 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-/* Variables globales: los manejadores de senal solo reciben el
-   numero de senal como parametro, asi que para que puedan usar
+/* Variables globales: los manejadores de señal solo reciben el
+   numero de señal como parametro, asi que para que puedan usar
    otros datos (como el PID al que hay que avisar) necesitamos
-   variables globales, igual que en los ejemplos de los apuntes
-   (la variable "seguir" del ejemplo de alarm, o "status"/"pid"
-   del ejemplo de SIGCHLD). */
-int pidA;              /* PID de A, lo usa el manejador de Z */
-int senalRecibida = 0; /* la usa A para saber si ya le llego la senal */
+   variables globales. */
+int pidA;              // PID de A, lo usa el manejador de Z
+int senalRecibida = 0; // la usa A para saber si ya le llego la señal
 
-/* ---------------- Manejadores de senal ---------------- */
+// ---------------- Manejadores de señal ----------------
 
 void manejadorAlarmaZ(int n)
 {
@@ -65,7 +41,7 @@ void manejadorUsr2Y(int n)
     exit(0);
 }
 
-/* ---------------- Proceso X ---------------- */
+// ---------------- Proceso X ----------------
 void procesoX(int pidEjec, int pidAbuelo, int pidPadre)
 {
     printf("Soy el proceso X: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
@@ -75,7 +51,7 @@ void procesoX(int pidEjec, int pidAbuelo, int pidPadre)
     pause(); /* espero a que B me avise */
 }
 
-/* ---------------- Proceso Y ---------------- */
+// ---------------- Proceso Y ----------------
 void procesoY(int pidEjec, int pidAbuelo, int pidPadre)
 {
     printf("Soy el proceso Y: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
@@ -85,7 +61,7 @@ void procesoY(int pidEjec, int pidAbuelo, int pidPadre)
     pause();
 }
 
-/* ---------------- Proceso Z ---------------- */
+// ---------------- Proceso Z ----------------
 void procesoZ(int pidEjec, int pidAbuelo, int pidPadre, int segundos)
 {
     printf("Soy el proceso Z: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
@@ -97,7 +73,7 @@ void procesoZ(int pidEjec, int pidAbuelo, int pidPadre, int segundos)
     pause();
 }
 
-/* ---------------- Proceso B ---------------- */
+// ---------------- Proceso B ----------------
 void procesoB(int pidEjec, int pidPadre, int segundos)
 {
     int miPid = getpid();
@@ -138,7 +114,7 @@ void procesoB(int pidEjec, int pidPadre, int segundos)
     exit(0);
 }
 
-/* ---------------- Proceso A ---------------- */
+// ---------------- Proceso A ----------------
 void procesoA(int pidEjec, int segundos)
 {
     int miPid = getpid();
@@ -153,7 +129,7 @@ void procesoA(int pidEjec, int segundos)
     }
 
     while (senalRecibida == 0) {
-        pause(); /* espero la senal de Z sin gastar CPU */
+        pause(); // espero la señal de Z
     }
 
     /* Creo un hijo para que ejecute pstree (asi yo puedo seguir
@@ -164,15 +140,15 @@ void procesoA(int pidEjec, int segundos)
         printf("Error al ejecutar pstree\n");
         exit(1);
     }
-    wait(NULL); /* espero a que termine de mostrarse el pstree */
+    wait(NULL); // espero a que termine de mostrarse el pstree
 
-    wait(NULL); /* espero a que B (y todo su subarbol) haya muerto */
+    wait(NULL); // espero a que B (y todo su subarbol) haya muerto
 
     printf("Soy A (%d) y muero\n", miPid);
     exit(0);
 }
 
-/* ---------------- main = proceso ejec (arb) ---------------- */
+// ---------------- main = proceso ejec (arb) ----------------
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
@@ -191,7 +167,7 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    wait(NULL); /* espero a que A (y todo el arbol) haya muerto */
+    wait(NULL); // espero a que A (y todo el arbol) haya muerto
     printf("Soy ejec (%d) y muero\n", pidEjec);
     exit(0);
 }
