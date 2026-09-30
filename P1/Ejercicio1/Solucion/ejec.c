@@ -15,7 +15,7 @@
 int pidA;              // PID de A, lo usa el manejador de Z
 int senalRecibida = 0; // la usa A para saber si ya le llego la señal
 
-// ---------------- Manejadores de señal ----------------
+// Manejadores de señal
 
 void manejadorAlarmaZ(int n)
 {
@@ -41,7 +41,7 @@ void manejadorUsr2Y(int n)
     exit(0);
 }
 
-// ---------------- Proceso X ----------------
+// Proceso X
 void procesoX(int pidEjec, int pidAbuelo, int pidPadre)
 {
     printf("Soy el proceso X: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
@@ -51,7 +51,7 @@ void procesoX(int pidEjec, int pidAbuelo, int pidPadre)
     pause(); /* espero a que B me avise */
 }
 
-// ---------------- Proceso Y ----------------
+// Proceso Y
 void procesoY(int pidEjec, int pidAbuelo, int pidPadre)
 {
     printf("Soy el proceso Y: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
@@ -61,7 +61,7 @@ void procesoY(int pidEjec, int pidAbuelo, int pidPadre)
     pause();
 }
 
-// ---------------- Proceso Z ----------------
+// Proceso Z
 void procesoZ(int pidEjec, int pidAbuelo, int pidPadre, int segundos)
 {
     printf("Soy el proceso Z: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
@@ -102,7 +102,7 @@ void procesoB(int pidEjec, int pidPadre, int segundos)
        despertar todavia, asi que el UNICO hijo que puede morir es
        Z (cuando salte su alarma). Por eso un wait() normal ya
        reune el orden correcto sin necesidad de nada mas avanzado. */
-    wait(NULL);              /* espero a que muera Z */
+    wait(NULL);              /* espero a que muera Z (Hijo) */
 
     kill(pidY, SIGUSR2);     /* ahora aviso a Y */
     wait(NULL);              /* y espero a que muera */
@@ -137,7 +137,6 @@ void procesoA(int pidEjec, int segundos)
     int pidPstree = fork();
     if (pidPstree == 0) {
         execlp("pstree", "pstree", NULL);
-        printf("Error al ejecutar pstree\n");
         exit(1);
     }
     wait(NULL); // espero a que termine de mostrarse el pstree
@@ -152,7 +151,7 @@ void procesoA(int pidEjec, int segundos)
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
-        printf("Uso: %s <segundos>\n", argv[0]);
+        printf("Uso: ./ejec <segundos>\n");
         exit(1);
     }
 
