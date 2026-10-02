@@ -74,10 +74,15 @@ void crearVertical(int col, int x, int y)
                 i + 1, col, getpid(), getppid(), i + 1, col);
 
         }
+        else if(pidHijo > 0){
+
+            wait(NULL);
+            printf("Soy %d y muero\n", getpid());
+            exit(0);
+        }
         else{
-            //wait(NULL);
-            printf("Soy %d y espero\n", getpid());
-            //exit(0);
+            
+            printf("Error al crear el proceso hijo\n");
         }
 
         fila = i;
@@ -88,10 +93,14 @@ void crearVertical(int col, int x, int y)
         alarm(2);
         pause();
         pause();
+        printf("Soy %d y muero\n", getpid());
+        exit(0);
         
     }
-    else{
+    else if(fila == x - 1 && col < y){
         pause();
+        printf("Soy %d y muero\n", getpid());
+        exit(0);
     }
 
     printf("Soy %d y muero\n", getpid());
@@ -108,6 +117,7 @@ void crearHorizontal(int x, int y){
             printf("Soy p%d%d: mi pid es %d, mi padre es %d (fila %d, columna %d)\n",
                 1, col, getpid(), getppid(), 1, col);
             crearVertical(col, x, y);
+            wait(NULL);
             exit(0);
         }
         else{
@@ -143,9 +153,13 @@ int main(int argc, char *argv[])
 
     wait(NULL); /* espero a que pstree termine de mostrarse */
 
-    kill(pidMalla, SIGUSR2); 
+    kill(0, SIGUSR2); 
+
+    wait(NULL); // Espero a que todos los hijos de la malla mueran.
 
     printf("Soy malla: mi pid es %d y muero\n", getpid());
+
+    exit(0);
 
     return 0;
 }
