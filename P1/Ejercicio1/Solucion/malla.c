@@ -1,4 +1,4 @@
-// Ejercicio 1 B, practica 1, Sistemas Operativos
+// Ejercicio 1 A, practica 1, Sistemas Operativos
 // Jose Miguel Martinez Garcia
 // malla.c
 
@@ -9,33 +9,20 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 
-pid_t pidMalla;
-
-void alarma(int n){
-    printf("Soy la alarma: rin rin");
-    kill(pidMalla, SIGUSR1);
-}
-
-void morir(int n)
-{
-    printf("Soy malla: mi pid es %d y he recibido la señal de muerte\n", getpid());
-}
-
 void vacio(int n){
-    
 }
 
 void ejecutarPstree(){
 
     printf("Arbol completo. Ejecuto pstree...\n");
 
-    pid_t pidPs = fork();
+    pid_t pidP = fork();
 
-    if (pidPs == 0) {
+    if (pidP == 0) {
 
-        char pid[20];
-        sprintf(pid, "%d", pidMalla);
-        execlp("pstree", "pstree", "-c", pid, NULL);
+        char pidPadre[20];
+        sprintf(pidPadre, "%d", getppid());
+        execlp("pstree", "pstree", "-c", pidPadre, NULL);
         exit(1);
     }
 }
@@ -46,85 +33,110 @@ bool parse(int argc, char *argv[])
         printf("Uso: ./malla <x filas> <y columnas>\n");
         return false;
     }
-    int x = atoi(argv[1]); /* numero de filas */
-    int y = atoi(argv[2]); /* numero de columnas */
-
-    if(x <= 0 || y <= 0){
-        return false;
-    }
     else{
-        return true;
-    }
-}
 
-/* Crea, en cadena, los procesos de una columna. El ultimo de la
-   cadena (fila == x) avisa a malla de que su columna ya esta
-   completa. Todos se quedan despues en pause() esperando a que
-   malla mande la orden de terminar. */
-void crearVertical(int col, int x, int y)
-{
-    int fila = 0;
-    for(int i = 1; i < x; i++){
+        int x = atoi(argv[1]); /* numero de filas */
+        int y = atoi(argv[2]); /* numero de columnas */
 
-        pid_t pidHijo = fork();
-
-        if(pidHijo == 0){
-
-            printf("Soy p%d%d: mi pid es %d, mi padre es %d (fila %d, columna %d)\n",
-                i + 1, col, getpid(), getppid(), i + 1, col);
-
-        }
-        else if(pidHijo > 0){
-
-            wait(NULL);
-            printf("Soy %d y muero\n", getpid());
-            exit(0);
+        if(x <= 0 || y <= 0){
+            return false;
         }
         else{
-            
-            printf("Error al crear el proceso hijo\n");
+            return true;
         }
-
-        fila = i;
     }
-    if(fila == x - 1 && col == y){
-
-        signal(SIGALRM, alarma);
-        alarm(2);
-        pause();
-        pause();
-        printf("Soy %d y muero\n", getpid());
-        exit(0);
-        
-    }
-    else if(fila == x - 1 && col < y){
-        pause();
-        printf("Soy %d y muero\n", getpid());
-        exit(0);
-    }
-
-    printf("Soy %d y muero\n", getpid());
+    
 }
 
-void crearHorizontal(int x, int y){
+void crearVertical(int x, int fila){
 
+    for(fila = 1; fila < x; fila++){
+
+        pid = fork();
+        
+        if(pid != 0){
+
+            printf("PID = %d: he creadp a mi hijo PID = %d. Espero con wait()\n",
+            getpid(), pid);
+
+            wait(NULL);
+
+            printf("PID = %d: mi hijo ha terminado. Yo termino\n",
+            getpid());
+
+            exit(0);
+        }
+
+        printf("PID = %d: continuo hacia la fila %d de mi columna\n",
+        getpid(), fila + 1);
+    }
+    
+    if(fila == x){
+
+        printf("PID = %d: soy el ultimo de mi columna. Entro en pause()\n",
+        getpid());
+
+        signal(SIGALRM, vacio);
+        alarm(5);
+        pause();
+
+        printf("PID = %d: ha llegado SIGALRM. Termino\n",
+        getpid());
+        
+        exit(0);        
+    }
+}
+
+void crearMalla(int x, int y, int col, int fila, pid_t pid){
+
+    printf("P0: PID = %d, PPID = %d. Empiezo a crear columnas\n",
+    getpid(), getppid());
+    
     for (int col = 1; col <= y; col++) {
 
-        pid_t pidHijo = fork();
+        pid = fork();
 
-        if (pidHijo == 0) {
+        if (pid == 0) {
 
-            printf("Soy p%d%d: mi pid es %d, mi padre es %d (fila %d, columna %d)\n",
-                1, col, getpid(), getppid(), 1, col);
-            crearVertical(col, x, y);
-            wait(NULL);
-            exit(0);
+            printf("PID = %d: soy la primera fila de la columna %d. Mi padre es %d\n",
+            getpid(), col, getppid());
+
+            crearVertical(x, fila);
         }
         else{
-            printf("Soy malla y he creado la columna %d\n", col);
+            printf("P0: he creado la columna %d, cuyo primer proceso es PID = %d\n",
+            col, pid);
         }
     }
 
+    if(col == y + 1){
+        
+        printf("P0: ya he creado todas las columnas. Espero a mis %d hijos \n",
+        y);
+
+        pid = fork();
+
+        if(pid == 0){
+
+            ejecutarPstree();
+        }
+
+        for(col = 1; col <= y; col++){
+
+            printf("P0: ejecutando wait numero %d\n",
+            col);
+
+            wait(NULL);
+
+            printf("P0: uno de mis hijos directos ha terminado, %d \n",
+            col);
+        }
+
+        wait(NULL); // Espero al PSTREE
+
+        print("P0: todos mis hijos han terminado\n");
+    }
+    
 }
 
 int main(int argc, char *argv[])
@@ -133,33 +145,17 @@ int main(int argc, char *argv[])
         printf("Error: los argumentos deben ser enteros positivos.\n");
         exit(1);
     }
+    else{
+        int x, y, col, fila;
+        pid_t pid;
 
-    int x = atoi(argv[1]);
-    int y = atoi(argv[2]);
-
-    pidMalla = getpid();
-
-    printf("Soy malla: mi pid es %d\n", pidMalla);
-    signal(SIGUSR2, morir);        
-    signal(SIGUSR1, vacio);
+        x = atoi(argv[1]);
+        y = atoi(argv[2]);
     
-    crearHorizontal(x, y);
-    
-    pause();
+        crearMalla(x, y, col, fila, pid);
+    }
 
-     /* espero, sin gastar CPU, a que se creen todas las columnas */
-
-    ejecutarPstree();
-
-    wait(NULL); /* espero a que pstree termine de mostrarse */
-
-    kill(0, SIGUSR2); 
-
-    wait(NULL); // Espero a que todos los hijos de la malla mueran.
-
-    printf("Soy malla: mi pid es %d y muero\n", getpid());
-
-    exit(0);
+    printf("Soy el programa %d y he terminado con exito", getpid());
 
     return 0;
 }
