@@ -15,6 +15,19 @@
 int pidA;              // PID de A, lo usa el manejador de Z
 int senalRecibida = 0; // la usa A para saber si ya le llego la señal
 
+// Funcion de PSTREE
+
+void ejecutarPstree(int p){
+
+    printf("Arbol completo. Ejecuto pstree...\n");
+
+    char pid[20];
+    sprintf(pid, "%d", p);
+    execlp("pstree", "pstree", "-c", pid, NULL);
+    perror("execlp");
+    exit(1);
+}
+
 // Manejadores de señal
 
 void manejadorAlarmaZ(int n)
@@ -134,10 +147,12 @@ void procesoA(int pidEjec, int segundos)
 
     /* Creo un hijo para que ejecute pstree (asi yo puedo seguir
        vivo despues y esperar correctamente a B) */
+
     int pidPstree = fork();
-    if (pidPstree == 0) {
-        execlp("pstree", "pstree", NULL);
-        exit(1);
+
+    if (pidPstree == 0){
+
+        ejecutarPstree(miPid);
     }
     wait(NULL); // espero a que termine de mostrarse el pstree
 

@@ -9,23 +9,26 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 
+// Funcion de Vacio
+
 void vacio(int n){
 }
+
+// Funcion PSTREE
 
 void ejecutarPstree(){
 
     printf("Arbol completo. Ejecuto pstree...\n");
 
-    pid_t pidP = fork();
-
-    if (pidP == 0) {
-
-        char pidPadre[20];
-        sprintf(pidPadre, "%d", getppid());
-        execlp("pstree", "pstree", "-c", pidPadre, NULL);
-        exit(1);
-    }
+    char pidPadre[20];
+    sprintf(pidPadre, "%d", getppid());
+    execlp("pstree", "pstree", "-c", pidPadre, NULL);
+    perror("execlp");
+    exit(1);
+    
 }
+
+// Funcion que revisa que los argumentos sean correctos
 
 bool parse(int argc, char *argv[])
 {
@@ -34,29 +37,30 @@ bool parse(int argc, char *argv[])
         return false;
     }
     else{
-
         int x = atoi(argv[1]); /* numero de filas */
         int y = atoi(argv[2]); /* numero de columnas */
 
         if(x <= 0 || y <= 0){
+            printf("Error: los parametros deben de ser numeros enteros positivos")
             return false;
         }
         else{
             return true;
         }
-    }
-    
+    }  
 }
 
-void crearVertical(int x, int fila){
+// ---- CrearVertical: Crea la estructura vertical y ejecuta la alarma -----
 
-    for(fila = 1; fila < x; fila++){
+void crearVertical(int x, int fila, pid_t pid){
+
+    for(fila = 1; fila <= x - 1; fila++){
 
         pid = fork();
         
         if(pid != 0){
 
-            printf("PID = %d: he creadp a mi hijo PID = %d. Espero con wait()\n",
+            printf("PID = %d: he creado a mi hijo PID = %d. Espero con wait()\n",
             getpid(), pid);
 
             wait(NULL);
@@ -77,7 +81,7 @@ void crearVertical(int x, int fila){
         getpid());
 
         signal(SIGALRM, vacio);
-        alarm(5);
+        alarm(3);
         pause();
 
         printf("PID = %d: ha llegado SIGALRM. Termino\n",
@@ -87,12 +91,14 @@ void crearVertical(int x, int fila){
     }
 }
 
+// ------ crearMalla: Crea la estructura Horizontal ------
+
 void crearMalla(int x, int y, int col, int fila, pid_t pid){
 
     printf("P0: PID = %d, PPID = %d. Empiezo a crear columnas\n",
     getpid(), getppid());
     
-    for (int col = 1; col <= y; col++) {
+    for (col = 1; col <= y; col++) {
 
         pid = fork();
 
@@ -101,7 +107,7 @@ void crearMalla(int x, int y, int col, int fila, pid_t pid){
             printf("PID = %d: soy la primera fila de la columna %d. Mi padre es %d\n",
             getpid(), col, getppid());
 
-            crearVertical(x, fila);
+            crearVertical(x, fila, pid);
         }
         else{
             printf("P0: he creado la columna %d, cuyo primer proceso es PID = %d\n",
@@ -121,6 +127,8 @@ void crearMalla(int x, int y, int col, int fila, pid_t pid){
             ejecutarPstree();
         }
 
+        wait(NULL); // Espero al PSTREE
+
         for(col = 1; col <= y; col++){
 
             printf("P0: ejecutando wait numero %d\n",
@@ -132,17 +140,17 @@ void crearMalla(int x, int y, int col, int fila, pid_t pid){
             col);
         }
 
-        wait(NULL); // Espero al PSTREE
-
-        print("P0: todos mis hijos han terminado\n");
+        printf("P0: todos mis hijos han terminado\n");
     }
     
 }
 
+// -------------- Main: Malla principal ------------------
+
 int main(int argc, char *argv[])
 {
     if (!parse(argc, argv)) {
-        printf("Error: los argumentos deben ser enteros positivos.\n");
+        printf("Error: los argumentos deben ser 3 y solo admiten enteros positivos.\n");
         exit(1);
     }
     else{
