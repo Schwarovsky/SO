@@ -2,14 +2,6 @@
 // Jose Miguel Martinez Garcia
 // hacha.c
 
-/* ---------------------------------------------------------------
- * Divide un archivo en varios trozos: <archivo>.h00, <archivo>.h01, ...
- *
- * Uso:
- *   gcc -o hacha hacha.c
- *   ./hacha <archivo> <tamano>
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

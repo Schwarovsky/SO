@@ -17,46 +17,41 @@ int senalRecibida = 0; // la usa A para saber si ya le llego la señal
 
 // Funcion de PSTREE
 
-void ejecutarPstree(int p){
+void ejecutarPstree(int pid){
 
     printf("Arbol completo. Ejecuto pstree...\n");
 
-    char pid[20];
-    sprintf(pid, "%d", p);
-    execlp("pstree", "pstree", "-c", pid, NULL);
+    char pidt[20];
+    sprintf(pidt, "%d", pid);
+    execlp("pstree", "pstree", "-c", pidt, NULL);
     perror("execlp");
     exit(1);
 }
 
 // Manejadores de señal
 
-void manejadorAlarmaZ(int n)
-{
+void manejadorAlarmaZ(){
     kill(pidA, SIGUSR1);
     printf("Soy Z (%d) y muero\n", getpid());
     exit(0);
 }
 
-void manejadorUsr1A(int n)
-{
+void manejadorUsr1A(){
     senalRecibida = 1;
 }
 
-void manejadorUsr2X(int n)
-{
+void manejadorUsr2X(){
     printf("Soy X (%d) y muero\n", getpid());
     exit(0);
 }
 
-void manejadorUsr2Y(int n)
-{
+void manejadorUsr2Y(){
     printf("Soy Y (%d) y muero\n", getpid());
     exit(0);
 }
 
 // Proceso X
-void procesoX(int pidEjec, int pidAbuelo, int pidPadre)
-{
+void procesoX(pid_t pidEjec, pid_t pidAbuelo, pid_t pidPadre){
     printf("Soy el proceso X: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
            getpid(), pidPadre, pidAbuelo, pidEjec);
 
@@ -65,8 +60,7 @@ void procesoX(int pidEjec, int pidAbuelo, int pidPadre)
 }
 
 // Proceso Y
-void procesoY(int pidEjec, int pidAbuelo, int pidPadre)
-{
+void procesoY(pid_t pidEjec, pid_t pidAbuelo, pid_t pidPadre){
     printf("Soy el proceso Y: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
            getpid(), pidPadre, pidAbuelo, pidEjec);
 
@@ -75,8 +69,7 @@ void procesoY(int pidEjec, int pidAbuelo, int pidPadre)
 }
 
 // Proceso Z
-void procesoZ(int pidEjec, int pidAbuelo, int pidPadre, int segundos)
-{
+void procesoZ(pid_t pidEjec, pid_t pidAbuelo, pid_t pidPadre, int segundos){
     printf("Soy el proceso Z: mi pid es %d. Mi padre es %d. Mi abuelo es %d. Mi bisabuelo es %d\n",
            getpid(), pidPadre, pidAbuelo, pidEjec);
 
@@ -87,8 +80,7 @@ void procesoZ(int pidEjec, int pidAbuelo, int pidPadre, int segundos)
 }
 
 // ---------------- Proceso B ----------------
-void procesoB(int pidEjec, int pidPadre, int segundos)
-{
+void procesoB(pid_t pidEjec, pid_t pidPadre, int segundos){
     int miPid = getpid();
     printf("Soy el proceso B: mi pid es %d. Mi padre es %d. Mi abuelo es %d\n",
            miPid, pidPadre, pidEjec);
@@ -128,8 +120,7 @@ void procesoB(int pidEjec, int pidPadre, int segundos)
 }
 
 // ---------------- Proceso A ----------------
-void procesoA(int pidEjec, int segundos)
-{
+void procesoA(pid_t pidEjec, int segundos){
     int miPid = getpid();
     printf("Soy el proceso A: mi pid es %d. Mi padre es %d\n", miPid, pidEjec);
 
@@ -163,8 +154,7 @@ void procesoA(int pidEjec, int segundos)
 }
 
 // ---------------- main = proceso ejec (arb) ----------------
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     if (argc != 2) {
         printf("Uso: ./ejec <segundos>\n");
         exit(1);
@@ -175,7 +165,7 @@ int main(int argc, char *argv[])
 
     printf("Soy el proceso ejec: mi pid es %d\n", pidEjec);
 
-    int pidA_hijo = fork();
+    pid_t pidA_hijo = fork();
     if (pidA_hijo == 0) {
         procesoA(pidEjec, segundos);
         exit(0);

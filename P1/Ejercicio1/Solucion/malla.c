@@ -11,7 +11,7 @@
 
 // Funcion de Vacio
 
-void vacio(int n){
+void vacio(){
 }
 
 // Funcion PSTREE
@@ -52,8 +52,10 @@ bool parse(int argc, char *argv[])
 
 // ---- CrearVertical: Crea la estructura vertical y ejecuta la alarma -----
 
-void crearVertical(int x, int fila, pid_t pid){
+void crearVertical(int x, pid_t pid){
 
+    int fila;
+ 
     for(fila = 1; fila <= x - 1; fila++){
 
         pid = fork();
@@ -93,8 +95,9 @@ void crearVertical(int x, int fila, pid_t pid){
 
 // ------ crearMalla: Crea la estructura Horizontal ------
 
-void crearMalla(int x, int y, int col, int fila, pid_t pid){
+void crearMalla(int x, int y, pid_t pid){
 
+    int col;
     printf("P0: PID = %d, PPID = %d. Empiezo a crear columnas\n",
     getpid(), getppid());
     
@@ -107,7 +110,7 @@ void crearMalla(int x, int y, int col, int fila, pid_t pid){
             printf("PID = %d: soy la primera fila de la columna %d. Mi padre es %d\n",
             getpid(), col, getppid());
 
-            crearVertical(x, fila, pid);
+            crearVertical(x, pid);
         }
         else{
             printf("P0: he creado la columna %d, cuyo primer proceso es PID = %d\n",
@@ -154,13 +157,13 @@ int main(int argc, char *argv[])
         exit(1);
     }
     else{
-        int x, y, col, fila;
+        int x, y;
         pid_t pid;
 
         x = atoi(argv[1]);
         y = atoi(argv[2]);
     
-        crearMalla(x, y, col, fila, pid);
+        crearMalla(x, y, pid);
     }
 
     printf("Soy el programa %d y he terminado con exito", getpid());
