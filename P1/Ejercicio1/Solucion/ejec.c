@@ -12,12 +12,12 @@
    numero de señal como parametro, asi que para que puedan usar
    otros datos (como el PID al que hay que avisar) necesitamos
    variables globales. */
-int pidA;              // PID de A, lo usa el manejador de Z
+pid_t pidA;              // PID de A, lo usa el manejador de Z
 int senalRecibida = 0; // la usa A para saber si ya le llego la señal
 
 // Funcion de PSTREE
 
-void ejecutarPstree(int pid){
+void ejecutarPstree(pid_t pid){
 
     printf("Arbol completo. Ejecuto pstree...\n");
 
@@ -31,7 +31,7 @@ void ejecutarPstree(int pid){
 // Manejadores de señal
 
 void manejadorAlarmaZ(){
-    kill(pidA, SIGUSR1);
+    
     printf("Soy Z (%d) y muero\n", getpid());
     exit(0);
 }
@@ -74,6 +74,7 @@ void procesoZ(pid_t pidEjec, pid_t pidAbuelo, pid_t pidPadre, int segundos){
            getpid(), pidPadre, pidAbuelo, pidEjec);
 
     pidA = pidAbuelo; /* guardo el PID de A para que lo use el manejador */
+    kill(pidA, SIGUSR1);
     signal(SIGALRM, manejadorAlarmaZ);
     alarm(segundos);  
     pause();
