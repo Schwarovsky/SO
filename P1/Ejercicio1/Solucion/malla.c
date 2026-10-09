@@ -41,7 +41,7 @@ bool parse(int argc, char *argv[])
         int y = atoi(argv[2]); /* numero de columnas */
 
         if(x <= 0 || y <= 0){
-            printf("Error: los parametros deben de ser numeros enteros positivos")
+            printf("Error: los parametros deben de ser numeros enteros positivos");
             return false;
         }
         else{

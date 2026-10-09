@@ -30,14 +30,14 @@ void ejecutarPstree(pid_t pid){
 
 // Manejadores de señal
 
+void manejadorUsr1A(){
+    senalRecibida = 1;
+}
+
 void manejadorAlarmaZ(){
     
     printf("Soy Z (%d) y muero\n", getpid());
     exit(0);
-}
-
-void manejadorUsr1A(){
-    senalRecibida = 1;
 }
 
 void manejadorUsr2X(){
