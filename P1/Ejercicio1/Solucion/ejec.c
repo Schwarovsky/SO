@@ -81,26 +81,24 @@ void procesoZ(pid_t pidEjec, pid_t pidAbuelo, pid_t pidPadre, int segundos){
 
 // ---------------- Proceso B ----------------
 void procesoB(pid_t pidEjec, pid_t pidPadre, int segundos){
-    int miPid = getpid();
+
+    pid_t miPid = getpid();
     printf("Soy el proceso B: mi pid es %d. Mi padre es %d. Mi abuelo es %d\n",
            miPid, pidPadre, pidEjec);
 
-    int pidX = fork();
+    pid_t pidX = fork();
     if (pidX == 0) {
         procesoX(pidEjec, pidPadre, miPid);
-        exit(0);
     }
 
-    int pidY = fork();
+    pid_t pidY = fork();
     if (pidY == 0) {
         procesoY(pidEjec, pidPadre, miPid);
-        exit(0);
     }
 
-    int pidZ = fork();
+    pid_t pidZ = fork();
     if (pidZ == 0) {
         procesoZ(pidEjec, pidPadre, miPid, segundos);
-        exit(0);
     }
 
     /* En este momento X e Y solo estan en pause(), nada los puede
@@ -155,7 +153,8 @@ void procesoA(pid_t pidEjec, int segundos){
 
 // ---------------- main = proceso ejec (arb) ----------------
 int main(int argc, char *argv[]){
-    if (argc != 2) {
+
+    if (argc != 2 || argv[1] < 0) {
         printf("Uso: ./ejec <segundos>\n");
         exit(1);
     }
@@ -173,5 +172,5 @@ int main(int argc, char *argv[]){
 
     wait(NULL); // espero a que A (y todo el arbol) haya muerto
     printf("Soy ejec (%d) y muero\n", pidEjec);
-    exit(0);
+    return 0;
 }

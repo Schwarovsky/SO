@@ -111,7 +111,9 @@ void imprimirHijosFinales(int func, int y, int *vectorY){
 
 // Crea los procesos que forman la parte horizontal de la estructura
 
-void crearHijosFinales(int func, int y, int *vectorY, pid_t pid){
+void crearHijosFinales(int func, int y, int *vectorY){
+
+    pid_t pid;
 
     for(func = 1; func <= y; func++){
 
@@ -148,7 +150,7 @@ int main(int argc, char *argv[])
 
         int func, x, y, shmidx, shmidy;
         int *vectorX, *vectorY; // Punteros utilizados para accedes a la memoria compartida
-        pid_t pid, pidHijos;
+        pid_t pidHijos;
 
         x = atoi(argv[1]);
         y = atoi(argv[2]);
@@ -169,7 +171,7 @@ int main(int argc, char *argv[])
         // Contruimos la cadena vertical de procesos.
         func = crearVertical(func, x, y, vectorX, pidHijos);
 
-        if(func == 1){ // Si func tiene valor 1, estamos en el padre principal
+        if(func == 1){ // Si func tiene valor 1, estamos en el padre principal, porque ha salido del bucle con anticipación
 
             imprimirHijosFinales(func, y, vectorY);
 
@@ -179,12 +181,10 @@ int main(int argc, char *argv[])
             shmctl(shmidx, IPC_RMID, NULL);
             shmctl(shmidy, IPC_RMID, NULL);
         }
-        else{
-            // El ultimo proceso vertical se encarga de crear los procesos finales
-            if(func == x + 1){
-                crearHijosFinales(func, y, vectorY, pid);
-            }
-        }
+        elseif(func == x + 1){ // El ultimo proceso vertical se encarga de crear los procesos finales
+            
+            crearHijosFinales(func, y, vectorY);
+        } 
     }
 
     return 0;
