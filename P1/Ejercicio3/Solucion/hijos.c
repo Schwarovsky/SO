@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
             shmctl(shmidx, IPC_RMID, NULL);
             shmctl(shmidy, IPC_RMID, NULL);
         }
-        elseif(func == x + 1){ // El ultimo proceso vertical se encarga de crear los procesos finales
+        if(func == x + 1){ // El ultimo proceso vertical se encarga de crear los procesos finales
             
             crearHijosFinales(func, y, vectorY);
         } 
