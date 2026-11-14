@@ -38,7 +38,11 @@ int crearServidor(){
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opcion, sizeof(opcion));
+    if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opcion, sizeof(opcion)) < 0){
+        perror("Error al configurar SO_REUSEADDR");
+        close(sock);
+        return -1;
+    }
 
     if(bind(sock, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0){
         perror("Error no se pudo vincular el socket");
@@ -85,8 +89,13 @@ void transmitirFichero(int newSock){
 
                 escritos = write(newSock, buffer + enviados, leidos - enviados);
 
-                if(escritos <= 0){
+                if(escritos < 0){
                     perror("error al enviar al cliente");
+                    break;
+                }
+
+                if(escritos == 0){
+                    fprintf(stderr, "Error: no se han podido enviar mas datos\n");
                     break;
                 }
 
